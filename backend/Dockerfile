@@ -4,7 +4,7 @@
 # built, so this Dockerfile isn't the only place tests run - it shouldn't
 # be treated as full validation on its own though (FirstFood_V2_Phase1_
 # Review.md #12).
-FROM maven:3.9-eclipse-temurin-25 AS build
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /app
 
 COPY pom.xml ./
