@@ -1,5 +1,5 @@
 # --- Build stage ---
-FROM node:24-alpine AS build
+FROM node:24.22.3-alpine3.24 AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -24,7 +24,7 @@ ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
 RUN npm run build
 
 # --- Runtime stage ---
-FROM node:24-alpine
+FROM node:24.22.3-alpine3.24
 WORKDIR /app
 ENV NODE_ENV=production
 
