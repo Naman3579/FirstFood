@@ -1,6 +1,7 @@
 # --- Build stage ---
 FROM node:24.22.3-alpine3.24 AS build
 WORKDIR /app
+RUN npm install --global npm@12.2.2
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -26,6 +27,7 @@ RUN npm run build
 # --- Runtime stage ---
 FROM node:24.22.3-alpine3.24
 WORKDIR /app
+RUN npm install --global npm@12.2.2
 ENV NODE_ENV=production
 
 RUN addgroup -S firstfood && adduser -S firstfood -G firstfood
