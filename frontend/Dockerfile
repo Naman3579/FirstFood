@@ -1,39 +1,36 @@
+
 # --- Build stage ---
-FROM node:24-alpine AS build
+FROM node:24.22.3-alpine3.24 AS build
 WORKDIR /app
+
+# Update bundled npm to a version with patched dependencies
+RUN npm install --global npm@12.2.2
 
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
 
-# Both are BUILD-TIME values (Next inlines NEXT_PUBLIC_* and compiles rewrites into
-# the build). Proxy mode: NEXT_PUBLIC_API_BASE_URL="" + BACKEND_ORIGIN=<backend origin>.
-# Direct mode (rollback): NEXT_PUBLIC_API_BASE_URL=<backend url>, BACKEND_ORIGIN unused.
-# Passing neither fails the build on purpose rather than shipping a broken image.
 ARG NEXT_PUBLIC_API_BASE_URL
 ARG BACKEND_ORIGIN
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 ENV BACKEND_ORIGIN=${BACKEND_ORIGIN}
-# F-05: the PUBLIC Cloudflare Turnstile site key (safe to ship to browsers; the secret key lives only in the backend).
-# Optional: empty means no widget and no challenge-script allowance in the CSP, which only works while the backend
-# challenge is off. It is inlined at build time like the two values above.
-ARG NEXT_PUBLIC_PHONE_OTP_ENABLED=""
-ENV NEXT_PUBLIC_PHONE_OTP_ENABLED=${NEXT_PUBLIC_PHONE_OTP_ENABLED}
+
 ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=""
 ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
 
 RUN npm run build
 
 # --- Runtime stage ---
-FROM node:24-alpine
+FROM node:24.22.3-alpine3.24
 WORKDIR /app
 ENV NODE_ENV=production
 
+# Update npm in the final production image too
+RUN npm install --global npm@12.2.2
+
 RUN addgroup -S firstfood && adduser -S firstfood -G firstfood
 
-# F-16: production dependencies only (no eslint/typescript/@types in the image); the build output comes from the
-# build stage, the modules are installed fresh from the lockfile.
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
