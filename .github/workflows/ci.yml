@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Scan Maven and npm dependencies
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -78,7 +78,7 @@ jobs:
           tags: firstfood-${{ matrix.name }}:ci
           build-args: ${{ matrix.build-args }}
       - name: Scan ${{ matrix.name }} image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: firstfood-${{ matrix.name }}:ci
           scanners: vuln
